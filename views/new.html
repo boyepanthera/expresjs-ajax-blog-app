@@ -1,0 +1,97 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Create Blog post</title>
+  </head>
+  <body>
+    <style>
+      label {
+        font-weight: bolder;
+        font-size: 20px;
+      }
+      form {
+        width: 50%;
+      }
+      .input-field {
+        display: block;
+        width: 100%;
+        padding: 10px;
+      }
+      .input-group {
+        margin-bottom: 10px;
+      }
+
+      button {
+        background-color: blueviolet;
+        border-radius: 3px;
+        color: white;
+        padding: 10px;
+        font-size: 16px;
+        border: none;
+      }
+    </style>
+    <form onsubmit="handleSubmit(event)">
+      <h1>Create Blog Post</h1>
+      <div class="input-group">
+        <label>Title</label>
+        <input type="text" name="title" class="input-field" />
+      </div>
+      <div class="input-group">
+        <label>Image URL</label>
+        <input type="url" name="imageUrl" class="input-field" />
+      </div>
+      <div class="input-group">
+        <label>Author</label>
+        <input type="text" name="author" class="input-field" />
+      </div>
+      <div class="input-group">
+        <label>Body</label>
+        <textarea
+          class="input-field"
+          name="body"
+          cols="150"
+          rows="30"
+        ></textarea>
+      </div>
+
+      <button id="submit-button">Create Blog Post</button>
+    </form>
+  </body>
+
+  <script>
+    const SubmitButton = document.getElementById('submit-button');
+    const handleSubmit = function (event) {
+      SubmitButton.innerHTML = 'Creating ...';
+      event.preventDefault();
+
+      const title = event.target[0].value;
+      const imageUrl = event.target[1].value;
+      const author = event.target[2].value;
+      const body = event.target[3].value;
+
+      fetch('/blog', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          title,
+          imageUrl,
+          author,
+          body,
+        }),
+      })
+        .then((response) => {
+          return response.json();
+        })
+        .then((data) => {
+          window.location.href = '/blog';
+          return;
+        })
+        .catch((err) => console.log(err));
+    };
+  </script>
+</html>
