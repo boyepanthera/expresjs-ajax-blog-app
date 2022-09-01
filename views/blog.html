@@ -20,9 +20,23 @@
     p {
       text-align: justify;
     }
+
+    #error-message {
+      color: red;
+      font-size: 16px;
+      /* padding: 5px; */
+      background-color: aliceblue;
+    }
+    #success-message {
+      color: green;
+      font-size: 16px;
+      /* padding: 5px; */
+      background-color: aliceblue;
+    }
   </style>
   <body>
     <h1>Single blog post</h1>
+
     <div id="post-container"></div>
   </body>
 
@@ -36,15 +50,42 @@
       .then((response) => {
         const postContent = `
           <div class="post-item">
-          <h1>${response.post.title} </h1>
-          <h2>By: ${response.post.author} </h2>
-          <img height="400" width="600" src="${response.post.imageUrl}" />
-          <p>${response.post.body}</p>
-          <a href="/blog"><button >Go back to All Post</button></a> 
+            <h1>${response.post.title} </h1>
+            <h2>By: ${response.post.author} </h2>
+            <img height="400" width="600" src="${response.post.imageUrl}" />
+            <p>${response.post.body}</p>
+            <a href="/blog"><button >Go back to All Post</button></a> 
+            <a href="/blog/${blogId}/edit"><button >Edit post</button></a>
+            <button onclick="handleDelete()">Delete Post</button>
+     
+              <span id="error-message"></span>
+              <span id="success-message"></span> 
+  
           </div>
           `;
 
         postContainer.innerHTML = postContent;
       });
+
+    function handleDelete() {
+      const errorContainer = document.getElementById('error-message');
+      const successContainer = document.getElementById('success-message');
+      fetch(`/api/blog/${blogId}`, {
+        method: 'DELETE',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+      })
+        .then((response) => {
+          return response.json();
+        })
+        .then((data) => {
+          successContainer.innerHTML = 'Blog post deleted successfully';
+          return setTimeout(() => (window.location.href = `/blog`), 5000);
+        })
+        .catch((err) => {
+          errorContainer.innerHTML = 'There was an issue deleting the post';
+        });
+    }
   </script>
 </html>

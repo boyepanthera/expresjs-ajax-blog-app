@@ -1,0 +1,144 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Edit Blog post</title>
+  </head>
+  <body>
+    <style>
+      label {
+        font-weight: bolder;
+        font-size: 20px;
+      }
+      form {
+        width: 50%;
+      }
+      .input-field {
+        display: block;
+        width: 100%;
+        padding: 10px;
+      }
+      .input-group {
+        margin-bottom: 10px;
+      }
+
+      button {
+        background-color: blueviolet;
+        border-radius: 3px;
+        color: white;
+        padding: 10px;
+        font-size: 16px;
+        border: none;
+      }
+
+      #error-message {
+        color: red;
+        font-size: 16px;
+        padding: 5px;
+        background-color: aliceblue;
+      }
+      #success-message {
+        color: green;
+        font-size: 16px;
+        padding: 5px;
+        background-color: aliceblue;
+      }
+    </style>
+    <form onsubmit="handleSubmit(event)">
+      <h1>Edit Blog Post</h1>
+      <span id="error-message"></span>
+      <span id="success-message"></span>
+      <div class="input-group">
+        <label>Title</label>
+        <input id="title" type="text" name="title" class="input-field" />
+      </div>
+      <div class="input-group">
+        <label>Image URL</label>
+        <input id="imageUrl" type="url" name="imageUrl" class="input-field" />
+      </div>
+      <div class="input-group">
+        <label>Author</label>
+        <input id="author" type="text" name="author" class="input-field" />
+      </div>
+      <div class="input-group">
+        <label>Body</label>
+        <textarea
+          id="body"
+          class="input-field"
+          name="body"
+          cols="150"
+          rows="30"
+        ></textarea>
+      </div>
+
+      <button id="submit-button">Edit Blog Post</button>
+    </form>
+  </body>
+
+  <script>
+    const splitArray = location.pathname.split('/');
+    let blogId = splitArray[2];
+    const titleInput = document.getElementById('title');
+    const authorInput = document.getElementById('author');
+    const bodyInput = document.getElementById('body');
+    const imageUrlInput = document.getElementById('imageUrl');
+    const SubmitButton = document.getElementById('submit-button');
+    const errorContainer = document.getElementById('error-message');
+    const successContainer = document.getElementById('success-message');
+
+    window.onload = function () {
+      fetch(`/api/blog/${blogId}`)
+        .then((response) => response.json())
+        .then((response) => {
+          titleInput.value = response.post.title;
+          authorInput.value = response.post.author;
+          bodyInput.value = response.post.body;
+          imageUrlInput.value = response.post.imageUrl;
+        })
+        .catch((err) => {
+          errorContainer.innerHTML = 'There was an issue loading the post';
+        });
+    };
+
+    const handleSubmit = function (event) {
+      SubmitButton.innerHTML = 'Edit ...';
+      event.preventDefault();
+
+      const title = event.target[0].value;
+      const imageUrl = event.target[1].value;
+      const author = event.target[2].value;
+      const body = event.target[3].value;
+
+      fetch(`/api/blog/${blogId}`, {
+        method: 'PUT',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          title,
+          imageUrl,
+          author,
+          body,
+        }),
+      })
+        .then((response) => {
+          return response.json();
+        })
+        .then((data) => {
+          SubmitButton.innerHTML = 'Edited';
+          SubmitButton.ariaDisabled = true;
+          successContainer.innerHTML = 'Blog post updated successfully';
+          return setTimeout(
+            () => (window.location.href = `/blog/${blogId}`),
+            5000
+          );
+        })
+        .catch((err) => {
+          console.log(err);
+          errorContainer.innerHTML = 'There was an issue updating the post';
+        });
+    };
+  </script>
+</html>

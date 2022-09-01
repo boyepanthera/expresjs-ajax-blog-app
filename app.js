@@ -68,6 +68,11 @@ app.get('/blog/:id', (req, res) => {
   res.status(200).sendFile(path.join(__dirname, 'views/blog.html'));
 });
 
+// to render a single blog post
+app.get('/blog/:id/edit', (req, res) => {
+  res.status(200).sendFile(path.join(__dirname, 'views/edit.html'));
+});
+
 app.get('/api/blog/:id', async (req, res) => {
   try {
     const blogId = req.params.id;
@@ -82,13 +87,29 @@ app.get('/api/blog/:id', async (req, res) => {
 });
 
 //api url to update existing blog post data into the db
-app.put('/blog/:id', (res, req) => {
-  res.send('Ok');
+app.put('/api/blog/:id', async (req, res) => {
+  try {
+    await Blog.findByIdAndUpdate(req.params.id, {
+      title: req.body.title,
+      imageUrl: req.body.imageUrl,
+      author: req.body.author,
+      body: req.body.body,
+    });
+    return res.status(200).send({ message: 'blog post updated successfully' });
+  } catch (err) {
+    console.log(err);
+    return res.status(500).send({ message: err.message });
+  }
 });
 
 //api url to update existing blog post data into the db
-app.delete('/blog/:id', (res, req) => {
-  res.send('Ok');
+app.delete('/api/blog/:id', async (req, res) => {
+  try {
+    await Blog.findByIdAndDelete(req.params.id);
+    return res.status(200).send({ message: 'Blog deleted successfully' });
+  } catch (err) {
+    res.status(500).send({ message: err.message });
+  }
 });
 
 app.listen(5001, async () => {
